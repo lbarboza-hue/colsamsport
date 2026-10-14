@@ -19,6 +19,7 @@ export default function App() {
   
   const [isLoginOpen, setIsLoginOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMatchId, setEditingMatchId] = useState(null);
   const [loginError, setLoginError] = useState('');
   
   const [loginForm, setLoginForm] = useState({
@@ -37,6 +38,7 @@ export default function App() {
     status: 'Finalizado'
   });
 
+  // Cargar sesión guardada si existe
   useEffect(() => {
     const savedSession = localStorage.getItem('colsam_user_session');
     if (savedSession) {
@@ -50,6 +52,7 @@ export default function App() {
     }
   }, []);
 
+  // Manejador del Login
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setLoginError('');
@@ -77,25 +80,74 @@ export default function App() {
     setLoginForm({ name: '', curso: '', role: 'JUGADOR', password: '' });
   };
 
+  // Abrir modal para crear partido nuevo
+  const handleOpenCreateModal = () => {
+    setEditingMatchId(null);
+    setMatchForm({
+      sport: 'Futsal',
+      team1: '',
+      score1: '0',
+      team2: '',
+      score2: '0',
+      status: 'En curso'
+    });
+    setIsModalOpen(true);
+  };
+
+  // Abrir modal con el lápiz para editar un partido existente
+  const handleOpenEditModal = (match) => {
+    setEditingMatchId(match.id);
+    setMatchForm({
+      sport: match.sport,
+      team1: match.team1,
+      score1: match.score1 === '-' ? '0' : match.score1,
+      team2: match.team2,
+      score2: match.score2 === '-' ? '0' : match.score2,
+      status: match.status
+    });
+    setIsModalOpen(true);
+  };
+
+  // Guardar (Crear o Editar)
   const handleSaveMatch = (e) => {
     e.preventDefault();
     const iconMap = { Futsal: 'fa-futbol', Balonmano: 'fa-hand', Voleibol: 'fa-volleyball' };
 
-    const newMatch = {
-      id: Date.now(),
-      sport: matchForm.sport,
-      icon: iconMap[matchForm.sport] || 'fa-trophy',
-      date: 'Hoy',
-      team1: matchForm.team1,
-      score1: matchForm.score1,
-      team2: matchForm.team2,
-      score2: matchForm.score2,
-      status: matchForm.status
-    };
+    if (editingMatchId) {
+      // Editar partido existente
+      setMatches(matches.map(m => {
+        if (m.id === editingMatchId) {
+          return {
+            ...m,
+            sport: matchForm.sport,
+            icon: iconMap[matchForm.sport] || 'fa-trophy',
+            team1: matchForm.team1,
+            score1: matchForm.status === 'Próximo' ? '-' : matchForm.score1,
+            team2: matchForm.team2,
+            score2: matchForm.status === 'Próximo' ? '-' : matchForm.score2,
+            status: matchForm.status,
+            date: matchForm.status === 'En curso' ? 'Hoy, En curso' : m.date
+          };
+        }
+        return m;
+      }));
+    } else {
+      // Crear nuevo partido
+      const newMatch = {
+        id: Date.now(),
+        sport: matchForm.sport,
+        icon: iconMap[matchForm.sport] || 'fa-trophy',
+        date: matchForm.status === 'En curso' ? 'Hoy, En curso' : 'Hoy',
+        team1: matchForm.team1,
+        score1: matchForm.status === 'Próximo' ? '-' : matchForm.score1,
+        team2: matchForm.team2,
+        score2: matchForm.status === 'Próximo' ? '-' : matchForm.score2,
+        status: matchForm.status
+      };
+      setMatches([newMatch, ...matches]);
+    }
 
-    setMatches([newMatch, ...matches]);
     setIsModalOpen(false);
-    setMatchForm({ sport: 'Futsal', team1: '', score1: '0', team2: '', score2: '0', status: 'Finalizado' });
   };
 
   const filteredMatches = currentFilter === 'TODOS'
@@ -104,12 +156,12 @@ export default function App() {
 
   return (
     <div className="app-root">
+      {/* PANTALLA DE INICIO / LOGIN */}
       {isLoginOpen && (
         <div className="login-overlay">
           <div className="login-card">
             <div className="brand-login">
-              <i className="fa-solid fa-trophy"></i>
-              <span>Colsam-Sport</span>
+              <img src="colsam-sport.jpg" alt="Colsam Sport Logo" className="login-logo-img" />
             </div>
             <div className="brand-login-sub">Juegos Intercursos Oficiales</div>
 
@@ -174,9 +226,10 @@ export default function App() {
         </div>
       )}
 
+      {/* CABEZAL SUPERIOR CON LOGO OFICIAL */}
       <header className="top-header">
         <div className="header-brand">
-          <i className="fa-solid fa-trophy"></i>
+          <img src="colsam-sport.jpg" alt="Colsam Sport Logo" className="header-logo-img" />
           <div>
             <div className="brand-title">Colsam-Sport</div>
             <div className="brand-subtitle">JUEGOS INTERCURSOS OFICIALES</div>
@@ -200,18 +253,21 @@ export default function App() {
         </div>
       </header>
 
+      {/* CONTENIDO PRINCIPAL */}
       <main className="main-container">
+        {/* Banner para Editores */}
         {user?.role === 'EDITOR' && (
           <div className="editor-banner">
             <div>
-              <i className="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Puedes registrar y editar resultados.
+              <i className="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Haz clic en el icono de lápiz ✏️ de cualquier partido para actualizarlo en vivo.
             </div>
-            <button className="btn-action" onClick={() => setIsModalOpen(true)}>
-              <i className="fa-solid fa-plus"></i> Registrar Resultado
+            <button className="btn-action" onClick={handleOpenCreateModal}>
+              <i className="fa-solid fa-plus"></i> + Registrar Resultado
             </button>
           </div>
         )}
 
+        {/* Botones de Filtro tipo Píldora */}
         <div className="filter-pills">
           <button
             className={`pill-btn ${currentFilter === 'TODOS' ? 'active' : ''}`}
@@ -239,6 +295,7 @@ export default function App() {
           </button>
         </div>
 
+        {/* Grilla de Partidos */}
         <div className="matches-grid">
           {filteredMatches.map((m) => (
             <div className="match-card" key={m.id}>
@@ -248,7 +305,18 @@ export default function App() {
                     <i className={`fa-solid ${m.icon}`}></i>
                     <span>{m.sport}</span>
                   </div>
-                  <span>{m.date}</span>
+                  <div className="card-header-right">
+                    <span>{m.date}</span>
+                    {user?.role === 'EDITOR' && (
+                      <button
+                        className="btn-edit-pencil"
+                        title="Editar marcador / estado"
+                        onClick={() => handleOpenEditModal(m)}
+                      >
+                        <i className="fa-solid fa-pencil"></i>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="teams-container">
@@ -281,7 +349,7 @@ export default function App() {
 
                 <button
                   className="btn-details"
-                  onClick={() => alert(`Detalles del encuentro ${m.team1} vs ${m.team2}`)}
+                  onClick={() => alert(`Detalles del encuentro: ${m.team1} (${m.score1}) vs ${m.team2} (${m.score2})`)}
                 >
                   Ver detalles
                 </button>
@@ -291,10 +359,13 @@ export default function App() {
         </div>
       </main>
 
+      {/* MODAL PARA CREAR / EDITAR PARTIDOS */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <h3 style={{ marginBottom: '1rem', color: '#0d2847' }}>Registrar / Editar Partido</h3>
+            <h3 style={{ marginBottom: '1rem', color: '#0d2847' }}>
+              {editingMatchId ? '✏️ Editar Partido en Vivo' : '➕ Registrar Nuevo Partido'}
+            </h3>
             <form onSubmit={handleSaveMatch}>
               <div className="form-group">
                 <label>Deporte</label>
@@ -321,8 +392,8 @@ export default function App() {
                     onChange={(e) => setMatchForm({ ...matchForm, team1: e.target.value })}
                   />
                 </div>
-                <div className="form-group" style={{ width: '70px' }}>
-                  <label>Goles</label>
+                <div className="form-group" style={{ width: '80px' }}>
+                  <label>Marcador</label>
                   <input
                     type="number"
                     className="form-input"
@@ -345,8 +416,8 @@ export default function App() {
                     onChange={(e) => setMatchForm({ ...matchForm, team2: e.target.value })}
                   />
                 </div>
-                <div className="form-group" style={{ width: '70px' }}>
-                  <label>Goles</label>
+                <div className="form-group" style={{ width: '80px' }}>
+                  <label>Marcador</label>
                   <input
                     type="number"
                     className="form-input"
@@ -358,14 +429,14 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label>Estado</label>
+                <label>Estado del Partido</label>
                 <select
                   className="form-input"
                   value={matchForm.status}
                   onChange={(e) => setMatchForm({ ...matchForm, status: e.target.value })}
                 >
+                  <option value="En curso">🔴 En curso</option>
                   <option value="Finalizado">Finalizado</option>
-                  <option value="En curso">En curso</option>
                   <option value="Próximo">Próximo</option>
                 </select>
               </div>
@@ -375,7 +446,7 @@ export default function App() {
                   Cancelar
                 </button>
                 <button type="submit" className="btn-login" style={{ width: 'auto', padding: '0.55rem 1.2rem' }}>
-                  Guardar Partido
+                  Guardar Cambios
                 </button>
               </div>
             </form>
