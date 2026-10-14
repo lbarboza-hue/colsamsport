@@ -1,472 +1,400 @@
+import React, { useState, useEffect } from 'react';
+import './App.css';
 
-/* ==========================================
-   VARIABLES Y SISTEMA DE DISEÑO (IMAGEN 2)
-   ========================================== */
-:root {
-  --header-bg: #0d2847;          /* Azul marino profundo */
-  --header-card-bg: #1a3a5f;     /* Fondo de insignia de temporada */
-  --bg-main: #f4f6f8;            /* Fondo gris claro de la pantalla */
-  --card-bg: #ffffff;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --score-bg: #f1f5f9;           /* Fondo gris de la caja del marcador */
-  --badge-finalizado: #e8dfd5;  /* Color beige oficial de la imagen 2 */
-  --badge-finalizado-text: #524336;
-  --radius-pill: 30px;
-  --radius-card: 14px;
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
-  --transition: all 0.2s ease;
-}
+const EDITOR_PASSWORD = 'colsam123';
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
+const INITIAL_MATCHES = [
+  { id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM', team1: '11° A', score1: '4', team2: '11° B', score2: '2', status: 'Finalizado' },
+  { id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM', team1: '10° C', score1: '1', team2: '10° A', score2: '1', status: 'Finalizado' },
+  { id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM', team1: '9° B', score1: '15', team2: '9° C', score2: '12', status: 'Finalizado' },
+  { id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM', team1: '11° C', score1: '2', team2: '10° B', score2: '0', status: 'Finalizado' },
+  { id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM', team1: '8° A', score1: '-', team2: '8° B', score2: '-', status: 'Próximo' },
+  { id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso', team1: '11° A', score1: '8', team2: '10° C', score2: '5', status: 'En curso' }
+];
 
-body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  min-height: 100vh;
-}
+export default function App() {
+  // Estado general
+  const [user, setUser] = useState(null);
+  const [matches, setMatches] = useState(INITIAL_MATCHES);
+  const [currentFilter, setCurrentFilter] = useState('TODOS');
+  
+  // Estado para modales y formularios
+  const [isLoginOpen, setIsLoginOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  
+  const [loginForm, setLoginForm] = useState({
+    name: '',
+    curso: '',
+    role: 'JUGADOR',
+    password: ''
+  });
 
-/* ==========================================
-   PANTALLA DE LOGIN / OVERLAY
-   ========================================== */
-.login-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, #07172b 0%, var(--header-bg) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  padding: 1.5rem;
-}
+  const [matchForm, setMatchForm] = useState({
+    sport: 'Futsal',
+    team1: '',
+    score1: '0',
+    team2: '',
+    score2: '0',
+    status: 'Finalizado'
+  });
 
-.login-card {
-  background: #ffffff;
-  border-radius: var(--radius-card);
-  width: 100%;
-  max-width: 420px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
-  text-align: center;
-}
+  // Restaurar sesión al cargar
+  useEffect(() => {
+    const savedSession = localStorage.getItem('colsam_user_session');
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        setUser(parsed);
+        setIsLoginOpen(false);
+      } catch (e) {
+        localStorage.removeItem('colsam_user_session');
+      }
+    }
+  }, []);
 
-.brand-login {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--header-bg);
-  margin-bottom: 0.25rem;
-}
+  // Manejadores de Autenticación
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    setLoginError('');
 
-.brand-login-sub {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 1.75rem;
-}
+    if (loginForm.role === 'EDITOR' && loginForm.password !== EDITOR_PASSWORD) {
+      setLoginError('Contraseña incorrecta para Editor. Verifícala e intenta de nuevo.');
+      return;
+    }
 
-.form-group {
-  text-align: left;
-  margin-bottom: 1.2rem;
-}
+    const userData = {
+      name: loginForm.name,
+      curso: loginForm.curso,
+      role: loginForm.role
+    };
 
-.form-group label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 0.4rem;
-}
+    setUser(userData);
+    localStorage.setItem('colsam_user_session', JSON.stringify(userData));
+    setIsLoginOpen(false);
+  };
 
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: var(--transition);
-  background: #f8fafc;
-}
+  const handleLogout = () => {
+    localStorage.removeItem('colsam_user_session');
+    setUser(null);
+    setIsLoginOpen(true);
+    setLoginForm({ name: '', curso: '', role: 'JUGADOR', password: '' });
+  };
 
-.form-input:focus {
-  outline: none;
-  border-color: var(--header-bg);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(13, 40, 71, 0.1);
-}
+  // Guardar nuevo partido (modo Editor)
+  const handleSaveMatch = (e) => {
+    e.preventDefault();
+    const iconMap = { Futsal: 'fa-futbol', Balonmano: 'fa-hand', Voleibol: 'fa-volleyball' };
 
-.btn-login {
-  width: 100%;
-  background: var(--header-bg);
-  color: #fff;
-  padding: 0.85rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
+    const newMatch = {
+      id: Date.now(),
+      sport: matchForm.sport,
+      icon: iconMap[matchForm.sport] || 'fa-trophy',
+      date: 'Hoy',
+      team1: matchForm.team1,
+      score1: matchForm.score1,
+      team2: matchForm.team2,
+      score2: matchForm.score2,
+      status: matchForm.status
+    };
 
-.btn-login:hover {
-  background: #173b66;
-}
+    setMatches([newMatch, ...matches]);
+    setIsModalOpen(false);
+    setMatchForm({ sport: 'Futsal', team1: '', score1: '0', team2: '', score2: '0', status: 'Finalizado' });
+  };
 
-.login-error-msg {
-  background: #fee2e2;
-  color: #dc2626;
-  padding: 0.6rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
+  // Filtrado de partidos
+  const filteredMatches = currentFilter === 'TODOS'
+    ? matches
+    : matches.filter(m => m.sport === currentFilter);
 
-/* ==========================================
-   CABEZAL SUPERIOR
-   ========================================== */
-.top-header {
-  background-color: var(--header-bg);
-  color: #ffffff;
-  padding: 1.25rem 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+  return (
+    <div className="app-root">
+      {/* PANTALLA DE INICIO / LOGIN */}
+      {isLoginOpen && (
+        <div className="login-overlay">
+          <div className="login-card">
+            <div className="brand-login">
+              <i className="fa-solid fa-trophy"></i>
+              <span>Colsam-Sport</span>
+            </div>
+            <div className="brand-login-sub">Juegos Intercursos Oficiales</div>
 
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+            <form onSubmit={handleLoginSubmit}>
+              <div className="form-group">
+                <label>Nombre y Apellido</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Ej. Juan Pérez"
+                  required
+                  value={loginForm.name}
+                  onChange={(e) => setLoginForm({ ...loginForm, name: e.target.value })}
+                />
+              </div>
 
-.header-brand i {
-  font-size: 2rem;
-  color: #ffffff;
-}
+              <div className="form-group">
+                <label>Curso / Grado</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Ej. 11° A"
+                  required
+                  value={loginForm.curso}
+                  onChange={(e) => setLoginForm({ ...loginForm, curso: e.target.value })}
+                />
+              </div>
 
-.brand-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
-}
+              <div className="form-group">
+                <label>Tipo de Usuario</label>
+                <select
+                  className="form-input"
+                  value={loginForm.role}
+                  onChange={(e) => setLoginForm({ ...loginForm, role: e.target.value })}
+                >
+                  <option value="JUGADOR">Espectador / Jugador (Sin Clave)</option>
+                  <option value="EDITOR">Editor Deportivo (Requiere Clave)</option>
+                </select>
+              </div>
 
-.brand-subtitle {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 1px;
-}
+              {loginForm.role === 'EDITOR' && (
+                <div className="form-group">
+                  <label>Contraseña de Editor</label>
+                  <input
+                    type="password"
+                    className="form-input"
+                    placeholder="Ingresa contraseña"
+                    required
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  />
+                </div>
+              )}
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+              {loginError && <div className="login-error-msg">{loginError}</div>}
 
-.season-badge {
-  background: var(--header-card-bg);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  padding: 0.5rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+              <button type="submit" className="btn-login">
+                <i className="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
-.user-pill {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+      {/* CABEZAL SUPERIOR (IMAGEN 2) */}
+      <header className="top-header">
+        <div className="header-brand">
+          <i className="fa-solid fa-trophy"></i>
+          <div>
+            <div className="brand-title">Colsam-Sport</div>
+            <div className="brand-subtitle">JUEGOS INTERCURSOS OFICIALES</div>
+          </div>
+        </div>
 
-.btn-logout {
-  background: none;
-  border: none;
-  color: #cbd5e1;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: var(--transition);
-}
+        <div className="header-actions">
+          <div className="season-badge">
+            <i className="fa-regular fa-calendar"></i>
+            <span>Temporada 2026</span>
+          </div>
 
-.btn-logout:hover {
-  color: #ef4444;
-}
+          {user && (
+            <div className="user-pill">
+              <span>{user.name} ({user.curso})</span>
+              <button className="btn-logout" onClick={handleLogout} title="Cerrar Sesión">
+                <i className="fa-solid fa-right-from-bracket"></i>
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
 
-/* ==========================================
-   CONTENEDOR Y FILTROS TIPO PÍLDORA
-   ========================================== */
-.main-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  width: 100%;
-}
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="main-container">
+        {/* Banner exclusivo de Editor */}
+        {user?.role === 'EDITOR' && (
+          <div className="editor-banner">
+            <div>
+              <i className="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Puedes registrar y editar resultados.
+            </div>
+            <button className="btn-action" onClick={() => setIsModalOpen(true)}>
+              <i className="fa-solid fa-plus"></i> Registrar Resultado
+            </button>
+          </div>
+        )}
 
-.filter-pills {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-}
+        {/* Botones de Filtro tipo Píldora (Imagen 2) */}
+        <div className="filter-pills">
+          <button
+            className={`pill-btn ${currentFilter === 'TODOS' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('TODOS')}
+          >
+            <i className="fa-solid fa-border-all"></i> Todos
+          </button>
+          <button
+            className={`pill-btn ${currentFilter === 'Futsal' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('Futsal')}
+          >
+            <i className="fa-solid fa-futbol"></i> Futsal
+          </button>
+          <button
+            className={`pill-btn ${currentFilter === 'Balonmano' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('Balonmano')}
+          >
+            <i className="fa-solid fa-hand"></i> Balonmano
+          </button>
+          <button
+            className={`pill-btn ${currentFilter === 'Voleibol' ? 'active' : ''}`}
+            onClick={() => setCurrentFilter('Voleibol')}
+          >
+            <i className="fa-solid fa-volleyball"></i> Voleibol
+          </button>
+        </div>
 
-.pill-btn {
-  background: #ffffff;
-  border: 1.5px solid #d1d5db;
-  color: #374151;
-  padding: 0.55rem 1.4rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: var(--transition);
-}
+        {/* Grilla de Partidos */}
+        <div className="matches-grid">
+          {filteredMatches.map((m) => (
+            <div className="match-card" key={m.id}>
+              <div>
+                <div className="card-header">
+                  <div className="card-sport">
+                    <i className={`fa-solid ${m.icon}`}></i>
+                    <span>{m.sport}</span>
+                  </div>
+                  <span>{m.date}</span>
+                </div>
 
-.pill-btn:hover {
-  border-color: var(--header-bg);
-  color: var(--header-bg);
-}
+                <div className="teams-container">
+                  <div className="team-row">
+                    <span className="team-name">{m.team1}</span>
+                    <div className="score-box">{m.score1}</div>
+                  </div>
+                  <div className="vs-divider">
+                    <span className="vs-text">VS</span>
+                  </div>
+                  <div className="team-row">
+                    <span className="team-name">{m.team2}</span>
+                    <div className="score-box">{m.score2}</div>
+                  </div>
+                </div>
+              </div>
 
-.pill-btn.active {
-  background: var(--header-bg);
-  color: #ffffff;
-  border-color: var(--header-bg);
-}
+              <div className="card-footer">
+                {m.status === 'Finalizado' && (
+                  <span className="badge-status status-finalizado">Finalizado</span>
+                )}
+                {m.status === 'En curso' && (
+                  <span className="badge-status status-encurso">
+                    <span className="dot"></span> En curso
+                  </span>
+                )}
+                {m.status === 'Próximo' && (
+                  <span className="badge-status status-proximo">Próximo</span>
+                )}
 
-/* ==========================================
-   GRILLA Y TARJETAS DE PARTIDO
-   ========================================== */
-.matches-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
+                <button
+                  className="btn-details"
+                  onClick={() => alert(`Detalles del encuentro ${m.team1} vs ${m.team2}`)}
+                >
+                  Ver detalles
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
 
-.match-card {
-  background: var(--card-bg);
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border-color);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: var(--transition);
-}
+      {/* MODAL REGISTRO DE EDITOR */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3 style={{ marginBottom: '1rem', color: '#0d2847' }}>Registrar / Editar Partido</h3>
+            <form onSubmit={handleSaveMatch}>
+              <div className="form-group">
+                <label>Deporte</label>
+                <select
+                  className="form-input"
+                  value={matchForm.sport}
+                  onChange={(e) => setMatchForm({ ...matchForm, sport: e.target.value })}
+                >
+                  <option value="Futsal">Futsal</option>
+                  <option value="Balonmano">Balonmano</option>
+                  <option value="Voleibol">Voleibol</option>
+                </select>
+              </div>
 
-.match-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Equipo 1</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Ej. 11° A"
+                    required
+                    value={matchForm.team1}
+                    onChange={(e) => setMatchForm({ ...matchForm, team1: e.target.value })}
+                  />
+                </div>
+                <div className="form-group" style={{ width: '70px' }}>
+                  <label>Goles</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    min="0"
+                    value={matchForm.score1}
+                    onChange={(e) => setMatchForm({ ...matchForm, score1: e.target.value })}
+                  />
+                </div>
+              </div>
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 1.25rem;
-  font-weight: 600;
-}
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Equipo 2</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Ej. 11° B"
+                    required
+                    value={matchForm.team2}
+                    onChange={(e) => setMatchForm({ ...matchForm, team2: e.target.value })}
+                  />
+                </div>
+                <div className="form-group" style={{ width: '70px' }}>
+                  <label>Goles</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    min="0"
+                    value={matchForm.score2}
+                    onChange={(e) => setMatchForm({ ...matchForm, score2: e.target.value })}
+                  />
+                </div>
+              </div>
 
-.card-sport {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--header-bg);
-  font-weight: 700;
-}
+              <div className="form-group">
+                <label>Estado</label>
+                <select
+                  className="form-input"
+                  value={matchForm.status}
+                  onChange={(e) => setMatchForm({ ...matchForm, status: e.target.value })}
+                >
+                  <option value="Finalizado">Finalizado</option>
+                  <option value="En curso">En curso</option>
+                  <option value="Próximo">Próximo</option>
+                </select>
+              </div>
 
-.teams-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.team-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.team-name {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.score-box {
-  background: var(--score-bg);
-  color: #0f172a;
-  font-size: 1.1rem;
-  font-weight: 800;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vs-divider {
-  text-align: center;
-  position: relative;
-  margin: -0.25rem 0;
-}
-
-.vs-divider::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 50%; right: 0;
-  border-top: 1px solid var(--border-color);
-  z-index: 1;
-}
-
-.vs-text {
-  position: relative;
-  background: var(--card-bg);
-  padding: 0 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
-  z-index: 2;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 0.75rem;
-}
-
-.badge-status {
-  padding: 0.35rem 0.85rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.status-finalizado {
-  background: var(--badge-finalizado);
-  color: var(--badge-finalizado-text);
-}
-
-.status-proximo {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.status-encurso {
-  background: var(--header-bg);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.status-encurso .dot {
-  width: 6px;
-  height: 6px;
-  background: #22c55e;
-  border-radius: 50%;
-}
-
-.btn-details {
-  background: none;
-  border: none;
-  color: var(--header-bg);
-  font-size: 0.825rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  text-decoration: none;
-}
-
-.btn-details:hover {
-  text-decoration: underline;
-}
-
-/* Panel de Controles de Editor */
-.editor-banner {
-  background: var(--header-bg);
-  color: #ffffff;
-  padding: 1rem 1.5rem;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.btn-action {
-  background: #22c55e;
-  color: white;
-  border: none;
-  padding: 0.55rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Modales */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-}
-
-.modal-card {
-  background: #fff;
-  width: 100%;
-  max-width: 450px;
-  border-radius: var(--radius-card);
-  padding: 1.5rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-@media (max-width: 900px) {
-  .matches-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 600px) {
-  .matches-grid { grid-template-columns: 1fr; }
-  .top-header { flex-direction: column; gap: 1rem; text-align: center; }
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                <button type="button" className="pill-btn" onClick={() => setIsModalOpen(false)}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-login" style={{ width: 'auto', padding: '0.55rem 1.2rem' }}>
+                  Guardar Partido
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
