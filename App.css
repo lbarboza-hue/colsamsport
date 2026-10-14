@@ -2,14 +2,14 @@
    VARIABLES Y ESTILOS GLOBALES
    ========================================== */
 :root {
-  --header-bg: #0d2847;          /* Azul marino de la Imagen 2 */
+  --header-bg: #0d2847;
   --header-card-bg: #1a3a5f;
-  --bg-main: #f4f6f8;            /* Fondo claro */
+  --bg-main: #f4f6f8;
   --card-bg: #ffffff;
   --text-main: #1e293b;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  --score-bg: #f1f5f9;           /* Fondo gris marcador */
+  --score-bg: #f1f5f9;
   --badge-finalizado: #e8dfd5;
   --badge-finalizado-text: #524336;
   --radius-pill: 30px;
@@ -454,7 +454,9 @@ body {
   text-decoration: underline;
 }
 
-/* Banner de Editor */
+/* ==========================================
+   BANNER DE EDITOR
+   ========================================== */
 .editor-banner {
   background: var(--header-bg);
   color: #ffffff;
@@ -479,7 +481,9 @@ body {
   gap: 0.5rem;
 }
 
-/* Modales */
+/* ==========================================
+   MODALES
+   ========================================== */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
