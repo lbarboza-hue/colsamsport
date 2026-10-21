@@ -383,6 +383,12 @@
       padding-top: 0.75rem;
     }
 
+    .footer-status-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .badge-status {
       padding: 0.35rem 0.85rem;
       border-radius: 6px;
@@ -449,9 +455,17 @@
       border-radius: 6px;
       font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition);
     }
 
-    /* MODAL DE DETALLES Y EDICIÓN EN VIVO */
+    .btn-action:hover {
+      background: #16a34a;
+    }
+
+    /* MODALES */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -612,7 +626,7 @@
   <main class="main-container">
     <div id="editor-banner" class="editor-banner" style="display: none;">
       <div>
-        <i class="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Haz clic en <strong>"Ver detalles"</strong> en cualquier partido para actualizar marcadores y registrar goles/puntos en vivo.
+        <i class="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Haz clic en <strong>"Ver detalles"</strong> en cualquier partido para actualizar marcadores o usa el botón para crear uno nuevo.
       </div>
       <button class="btn-action" onclick="UI.openCreateModal()"><i class="fa-solid fa-plus"></i> + Crear Partido</button>
     </div>
@@ -637,7 +651,69 @@
     <div class="matches-grid" id="matches-grid"></div>
   </main>
 
-  <!-- MODAL UNIFICADO: DETALLES Y EDICIÓN EN VIVO -->
+  <!-- MODAL 1: REGISTRAR UN NUEVO PARTIDO -->
+  <div id="create-match-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: var(--header-bg);">➕ Registrar Nuevo Partido</h3>
+        <button onclick="UI.closeCreateModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <form id="create-match-form" onsubmit="App.createNewMatch(event)">
+        <div class="form-group">
+          <label for="create-sport">Deporte</label>
+          <select id="create-sport" class="form-input">
+            <option value="Futsal">Futsal</option>
+            <option value="Balonmano">Balonmano</option>
+            <option value="Voleibol">Voleibol</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <div class="form-group" style="flex: 1;">
+            <label for="create-team1">Equipo 1</label>
+            <input type="text" id="create-team1" class="form-input" placeholder="Ej. 11° A" required>
+          </div>
+          <div class="form-group" style="width: 80px;">
+            <label for="create-score1">Goles</label>
+            <input type="number" id="create-score1" class="form-input" value="0" min="0">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <div class="form-group" style="flex: 1;">
+            <label for="create-team2">Equipo 2</label>
+            <input type="text" id="create-team2" class="form-input" placeholder="Ej. 10° C" required>
+          </div>
+          <div class="form-group" style="width: 80px;">
+            <label for="create-score2">Goles</label>
+            <input type="number" id="create-score2" class="form-input" value="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="create-status">Estado del Partido</label>
+          <select id="create-status" class="form-input">
+            <option value="En curso">🔴 En curso</option>
+            <option value="Próximo">Próximo</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="create-date">Fecha / Hora (Opcional)</label>
+          <input type="text" id="create-date" class="form-input" placeholder="Ej. Hoy, En curso o 28 May, 10:00 AM">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+          <button type="button" class="pill-btn" onclick="UI.closeCreateModal()">Cancelar</button>
+          <button type="submit" class="btn-login" style="width: auto; padding: 0.55rem 1.2rem;">Guardar Partido</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: DETALLES Y EDICIÓN EN VIVO -->
   <div id="match-modal" class="modal-overlay">
     <div class="modal-card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -662,13 +738,13 @@
         </ul>
       </div>
 
-      <!-- SECCIÓN EXCLUSIVA DE EDITOR PARA CAMBIAR ESTADO Y ANOTAR GOLES EN VIVO -->
+      <!-- SECCIÓN EXCLUSIVA DE EDITOR EN VIVO -->
       <div id="editor-controls-panel" class="editor-box" style="display: none;">
         <div class="editor-box-title">
           <i class="fa-solid fa-pen-to-square"></i> Panel de Control (Modo Editor)
         </div>
 
-        <!-- Formularo 1: Cambiar Estado -->
+        <!-- Cambiar Estado -->
         <div style="margin-bottom: 1rem;">
           <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Cambiar Estado del Partido:</label>
           <div style="display: flex; gap: 0.5rem;">
@@ -683,7 +759,7 @@
 
         <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 0.8rem 0;">
 
-        <!-- Formulario 2: Registrar Gol / Punto -->
+        <!-- Registrar Gol / Punto -->
         <div>
           <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 0.4rem; color: var(--header-bg);">
             <i class="fa-solid fa-plus-circle"></i> Registrar Nuevo Gol / Punto:
@@ -880,6 +956,40 @@
         App.renderMatches();
       },
 
+      createNewMatch: function(e) {
+        e.preventDefault();
+        const sport = document.getElementById('create-sport').value;
+        const team1 = document.getElementById('create-team1').value.trim();
+        const score1 = parseInt(document.getElementById('create-score1').value) || 0;
+        const team2 = document.getElementById('create-team2').value.trim();
+        const score2 = parseInt(document.getElementById('create-score2').value) || 0;
+        const status = document.getElementById('create-status').value;
+        let date = document.getElementById('create-date').value.trim();
+
+        if (!date) {
+          date = status === 'En curso' ? 'Hoy, En curso' : (status === 'Finalizado' ? 'Hoy, Finalizado' : 'Hoy, Programado');
+        }
+
+        const iconMap = { 'Futsal': 'fa-futbol', 'Balonmano': 'fa-hand', 'Voleibol': 'fa-volleyball' };
+
+        const newMatch = {
+          id: Date.now(),
+          sport: sport,
+          icon: iconMap[sport] || 'fa-trophy',
+          date: date,
+          team1: team1,
+          score1: score1,
+          team2: team2,
+          score2: score2,
+          status: status,
+          events: []
+        };
+
+        state.matches.unshift(newMatch);
+        UI.closeCreateModal();
+        App.renderMatches();
+      },
+
       updateMatchStatus: function() {
         const newStatus = document.getElementById('editor-status-select').value;
         const match = state.matches.find(m => m.id === state.activeMatchId);
@@ -901,18 +1011,15 @@
         const minute = document.getElementById('goal-minute-input').value.trim();
         const player = document.getElementById('goal-player-input').value.trim();
 
-        // Sumar gol al equipo correspondiente
         if (teamSelected === match.team1) {
           match.score1 = Number(match.score1) + 1;
         } else {
           match.score2 = Number(match.score2) + 1;
         }
 
-        // Agregar evento
         if (!match.events) match.events = [];
         match.events.push({ team: teamSelected, player, minute });
 
-        // Limpiar inputs
         document.getElementById('goal-player-input').value = '';
         document.getElementById('goal-minute-input').value = '';
 
@@ -922,6 +1029,15 @@
     };
 
     const UI = {
+      openCreateModal: function() {
+        document.getElementById('create-match-form').reset();
+        document.getElementById('create-match-modal').classList.add('active');
+      },
+
+      closeCreateModal: function() {
+        document.getElementById('create-match-modal').classList.remove('active');
+      },
+
       openMatchModal: function(id) {
         const match = state.matches.find(m => m.id === id);
         if (!match) return;
@@ -929,14 +1045,12 @@
         state.activeMatchId = id;
         UI.refreshModalContent(match);
 
-        // Mostrar u ocultar panel de editor
         const isEditor = state.user && state.user.role === 'EDITOR';
         const editorPanel = document.getElementById('editor-controls-panel');
         if (isEditor) {
           editorPanel.style.display = 'block';
           document.getElementById('editor-status-select').value = match.status;
 
-          // Cargar opciones del selector de equipos
           const teamSelect = document.getElementById('goal-team-select');
           teamSelect.innerHTML = `
             <option value="${match.team1}">${match.team1}</option>
@@ -955,7 +1069,6 @@
         document.getElementById('modal-score-display').textContent = match.status === 'Próximo' ? '- vs -' : `${match.score1} - ${match.score2}`;
         document.getElementById('modal-teams-display').textContent = `${match.team1} vs ${match.team2}`;
 
-        // Badge de estado
         const badgeContainer = document.getElementById('modal-status-badge');
         if (match.status === 'Finalizado') {
           badgeContainer.innerHTML = `<span class="badge-status status-finalizado">Finalizado</span>`;
@@ -965,7 +1078,6 @@
           badgeContainer.innerHTML = `<span class="badge-status status-proximo">Próximo</span>`;
         }
 
-        // Cargar lista de goles
         const listContainer = document.getElementById('events-list-container');
         if (match.events && match.events.length > 0) {
           listContainer.innerHTML = match.events.map(ev => `
@@ -981,10 +1093,6 @@
 
       closeModal: function() {
         document.getElementById('match-modal').classList.remove('active');
-      },
-
-      openCreateModal: function() {
-        alert('Para registrar un partido nuevo completa los datos requeridos.');
       }
     };
 
