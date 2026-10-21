@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -44,21 +45,26 @@
       flex-direction: column;
     }
 
-    /* ESTILOS DE LOGO */
+    /* ESTILOS DE LOGO OFICIAL */
     .header-logo-img {
-      height: 48px;
+      height: 52px;
       width: auto;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #ffffff;
-      padding: 2px;
+      padding: 3px 6px;
       object-fit: contain;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
     .login-logo-img {
-      max-width: 210px;
+      max-width: 240px;
       height: auto;
+      max-height: 90px;
       object-fit: contain;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
+      border-radius: 8px;
+      padding: 4px;
+      background: #ffffff;
     }
 
     /* LOGIN OVERLAY */
@@ -554,11 +560,16 @@
 </head>
 <body>
 
-  <!-- PANTALLA DE INICIO CON LOGO OFICIAL -->
+  <!-- PANTALLA DE INICIO CON LOGO OFICIAL (ZONA MARCADA 2) -->
   <div id="login-screen" class="login-overlay">
     <div class="login-card">
       <div class="brand-login">
-        <img src="colsam-sport.jpg" alt="Colsam Sport Logo" class="login-logo-img">
+        <img 
+          src="colsam-sport_2.jpg" 
+          alt="Colsam Sport Logo" 
+          class="login-logo-img"
+          onerror="this.onerror=null; this.src='colsam-sport.jpg';"
+        >
       </div>
       <div class="brand-login-sub">Juegos Intercursos Oficiales</div>
 
@@ -595,10 +606,15 @@
     </div>
   </div>
 
-  <!-- CABEZAL SUPERIOR -->
+  <!-- CABEZAL SUPERIOR CON LOGO OFICIAL (ZONA MARCADA 1) -->
   <header class="top-header">
     <div class="header-brand">
-      <img src="colsam-sport.jpg" alt="Colsam Sport Logo" class="header-logo-img">
+      <img 
+        src="colsam-sport_2.jpg" 
+        alt="Colsam Sport Logo" 
+        class="header-logo-img"
+        onerror="this.onerror=null; this.src='colsam-sport.jpg';"
+      >
       <div>
         <div class="brand-title">Colsam-Sport</div>
         <div class="brand-subtitle">JUEGOS INTERCURSOS OFICIALES</div>
