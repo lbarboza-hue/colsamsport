@@ -44,7 +44,7 @@
       flex-direction: column;
     }
 
-    /* LOGO OFICIAL EN CABEZAL Y LOGIN */
+    /* ESTILOS DE LOGO */
     .header-logo-img {
       height: 48px;
       width: auto;
@@ -383,34 +383,6 @@
       padding-top: 0.75rem;
     }
 
-    .footer-status-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* LÁPIZ DE EDICIÓN AL LADO DEL ESTADO */
-    .btn-edit-pencil {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      color: var(--header-bg);
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: var(--transition);
-    }
-
-    .btn-edit-pencil:hover {
-      background: var(--header-bg);
-      color: #ffffff;
-      border-color: var(--header-bg);
-    }
-
     .badge-status {
       padding: 0.35rem 0.85rem;
       border-radius: 6px;
@@ -479,11 +451,11 @@
       cursor: pointer;
     }
 
-    /* MODAL */
+    /* MODAL DE DETALLES Y EDICIÓN EN VIVO */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -491,6 +463,7 @@
       opacity: 0;
       pointer-events: none;
       transition: var(--transition);
+      padding: 1rem;
     }
 
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -498,10 +471,66 @@
     .modal-card {
       background: #fff;
       width: 100%;
-      max-width: 450px;
+      max-width: 520px;
       border-radius: var(--radius-card);
-      padding: 1.5rem;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      padding: 1.75rem;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header-score {
+      background: var(--header-bg);
+      color: #fff;
+      padding: 1.25rem;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-score-big {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 0.4rem 0;
+      color: #38bdf8;
+    }
+
+    .editor-box {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .editor-box-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--header-bg);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .events-list {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .event-item {
+      padding: 0.5rem 0.75rem;
+      background: #f1f5f9;
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-item strong {
+      color: #0f172a;
     }
 
     @media (max-width: 900px) {
@@ -556,7 +585,7 @@
     </div>
   </div>
 
-  <!-- CABEZAL SUPERIOR CON LOGO EN EL CÍRCULO MARCADO -->
+  <!-- CABEZAL SUPERIOR -->
   <header class="top-header">
     <div class="header-brand">
       <img src="colsam-sport.jpg" alt="Colsam Sport Logo" class="header-logo-img">
@@ -583,9 +612,9 @@
   <main class="main-container">
     <div id="editor-banner" class="editor-banner" style="display: none;">
       <div>
-        <i class="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Haz clic en el lápiz ✏️ al lado del estado para editar un partido.
+        <i class="fa-solid fa-user-gear"></i> <strong>Modo Editor Activo</strong> — Haz clic en <strong>"Ver detalles"</strong> en cualquier partido para actualizar marcadores y registrar goles/puntos en vivo.
       </div>
-      <button class="btn-action" onclick="UI.openCreateModal()"><i class="fa-solid fa-plus"></i> + Registrar Resultado</button>
+      <button class="btn-action" onclick="UI.openCreateModal()"><i class="fa-solid fa-plus"></i> + Crear Partido</button>
     </div>
 
     <!-- Filtros de Deporte tipo Píldora -->
@@ -608,52 +637,69 @@
     <div class="matches-grid" id="matches-grid"></div>
   </main>
 
-  <!-- MODAL DE EDICIÓN Y REGISTRO -->
-  <div id="editor-modal" class="modal-overlay">
+  <!-- MODAL UNIFICADO: DETALLES Y EDICIÓN EN VIVO -->
+  <div id="match-modal" class="modal-overlay">
     <div class="modal-card">
-      <h3 style="margin-bottom: 1rem; color: var(--header-bg);" id="modal-title">Registrar Partido</h3>
-      <form id="match-form" onsubmit="App.saveMatch(event)">
-        <div class="form-group">
-          <label>Deporte</label>
-          <select id="modal-sport" class="form-input">
-            <option value="Futsal">Futsal</option>
-            <option value="Balonmano">Balonmano</option>
-            <option value="Voleibol">Voleibol</option>
-          </select>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="color: var(--header-bg);" id="modal-sport-title">Detalles del Partido</h3>
+        <button onclick="UI.closeModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <div class="modal-header-score">
+        <div style="font-size: 0.85rem; opacity: 0.9;" id="modal-date-info">Hoy</div>
+        <div class="modal-score-big" id="modal-score-display">0 - 0</div>
+        <div style="font-size: 1.1rem; font-weight: 700;" id="modal-teams-display">Equipo A vs Equipo B</div>
+        <div style="margin-top: 0.5rem;" id="modal-status-badge"></div>
+      </div>
+
+      <!-- HISTORIAL DE GOLES / ANOTACIONES -->
+      <div>
+        <h4 style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem;">
+          <i class="fa-solid fa-list-check"></i> Historial de Anotaciones / Goles
+        </h4>
+        <ul id="events-list-container" class="events-list">
+          <!-- Carga dinámica de anotaciones -->
+        </ul>
+      </div>
+
+      <!-- SECCIÓN EXCLUSIVA DE EDITOR PARA CAMBIAR ESTADO Y ANOTAR GOLES EN VIVO -->
+      <div id="editor-controls-panel" class="editor-box" style="display: none;">
+        <div class="editor-box-title">
+          <i class="fa-solid fa-pen-to-square"></i> Panel de Control (Modo Editor)
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <div class="form-group" style="flex: 1;">
-            <label>Equipo 1</label>
-            <input type="text" id="modal-team1" class="form-input" placeholder="Ej. 11° A" required>
+
+        <!-- Formularo 1: Cambiar Estado -->
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Cambiar Estado del Partido:</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="editor-status-select" class="form-input" style="padding: 0.4rem 0.6rem;">
+              <option value="En curso">🔴 En curso</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Próximo">Próximo</option>
+            </select>
+            <button type="button" class="pill-btn" onclick="App.updateMatchStatus()" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Actualizar</button>
           </div>
-          <div class="form-group" style="width: 80px;">
-            <label>Goles</label>
-            <input type="number" id="modal-score1" class="form-input" value="0" min="0">
-          </div>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <div class="form-group" style="flex: 1;">
-            <label>Equipo 2</label>
-            <input type="text" id="modal-team2" class="form-input" placeholder="Ej. 11° B" required>
-          </div>
-          <div class="form-group" style="width: 80px;">
-            <label>Goles</label>
-            <input type="number" id="modal-score2" class="form-input" value="0" min="0">
-          </div>
+
+        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 0.8rem 0;">
+
+        <!-- Formulario 2: Registrar Gol / Punto -->
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 0.4rem; color: var(--header-bg);">
+            <i class="fa-solid fa-plus-circle"></i> Registrar Nuevo Gol / Punto:
+          </label>
+          <form onsubmit="App.addGoalEvent(event)" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="goal-team-select" class="form-input" style="flex: 1; padding: 0.4rem;" required></select>
+              <input type="text" id="goal-minute-input" class="form-input" placeholder="Minuto (Ej: 15')" style="width: 100px; padding: 0.4rem;" required>
+            </div>
+            <input type="text" id="goal-player-input" class="form-input" placeholder="Nombre del jugador que hizo el gol/punto" style="padding: 0.4rem;" required>
+            <button type="submit" class="btn-login" style="padding: 0.5rem; font-size: 0.85rem; margin-top: 0.25rem;">
+              ⚽ Anotar Gol / Punto
+            </button>
+          </form>
         </div>
-        <div class="form-group">
-          <label>Estado del Partido</label>
-          <select id="modal-status" class="form-input">
-            <option value="En curso">🔴 En curso</option>
-            <option value="Finalizado">Finalizado</option>
-            <option value="Próximo">Próximo</option>
-          </select>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
-          <button type="button" class="pill-btn" onclick="UI.closeModal()">Cancelar</button>
-          <button type="submit" class="btn-login" style="width: auto; padding: 0.55rem 1.2rem;">Guardar Cambios</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -663,14 +709,58 @@
     let state = {
       user: null,
       currentFilter: 'TODOS',
-      editingMatchId: null,
+      activeMatchId: null,
       matches: [
-        { id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM', team1: '11° A', score1: '4', team2: '11° B', score2: '2', status: 'Finalizado' },
-        { id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM', team1: '10° C', score1: '1', team2: '10° A', score2: '1', status: 'Finalizado' },
-        { id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM', team1: '9° B', score1: '15', team2: '9° C', score2: '12', status: 'Finalizado' },
-        { id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM', team1: '11° C', score1: '2', team2: '10° B', score2: '0', status: 'Finalizado' },
-        { id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM', team1: '8° A', score1: '-', team2: '8° B', score2: '-', status: 'Próximo' },
-        { id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso', team1: '11° A', score1: '8', team2: '10° C', score2: '5', status: 'En curso' }
+        { 
+          id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM', 
+          team1: '11° A', score1: 4, team2: '11° B', score2: 2, status: 'Finalizado',
+          events: [
+            { team: '11° A', player: 'Juan Pérez', minute: "12'" },
+            { team: '11° A', player: 'Carlos Gómez', minute: "24'" },
+            { team: '11° B', player: 'Andrés López', minute: "30'" },
+            { team: '11° A', player: 'Juan Pérez', minute: "38'" },
+            { team: '11° B', player: 'Mateo Ruíz', minute: "41'" },
+            { team: '11° A', player: 'Felipe Silva', minute: "48'" }
+          ]
+        },
+        { 
+          id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM', 
+          team1: '10° C', score1: 1, team2: '10° A', score2: 1, status: 'Finalizado',
+          events: [
+            { team: '10° C', player: 'Daniel Torres', minute: "15'" },
+            { team: '10° A', player: 'Santi Marín', minute: "33'" }
+          ]
+        },
+        { 
+          id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM', 
+          team1: '9° B', score1: 15, team2: '9° C', score2: 12, status: 'Finalizado',
+          events: [
+            { team: '9° B', player: 'Lucas Castro (5 puntos)', minute: 'Global' },
+            { team: '9° C', player: 'Nicolás Vega (4 puntos)', minute: 'Global' }
+          ]
+        },
+        { 
+          id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM', 
+          team1: '11° C', score1: 2, team2: '10° B', score2: 0, status: 'Finalizado',
+          events: [
+            { team: '11° C', player: 'Anotación Set 1', minute: 'Set 1' },
+            { team: '11° C', player: 'Anotación Set 2', minute: 'Set 2' }
+          ]
+        },
+        { 
+          id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM', 
+          team1: '8° A', score1: 0, team2: '8° B', score2: 0, status: 'Próximo',
+          events: []
+        },
+        { 
+          id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso', 
+          team1: '11° A', score1: 8, team2: '10° C', score2: 5, status: 'En curso',
+          events: [
+            { team: '11° A', player: 'David Herrera', minute: "5'" },
+            { team: '10° C', player: 'Esteban Cruz', minute: "10'" },
+            { team: '11° A', player: 'David Herrera', minute: "18'" }
+          ]
+        }
       ]
     };
 
@@ -742,8 +832,6 @@
           ? state.matches 
           : state.matches.filter(m => m.sport === state.currentFilter);
 
-        const isEditor = state.user && state.user.role === 'EDITOR';
-
         grid.innerHTML = filtered.map(m => `
           <div class="match-card">
             <div>
@@ -758,14 +846,14 @@
               <div class="teams-container">
                 <div class="team-row">
                   <span class="team-name">${m.team1}</span>
-                  <div class="score-box">${m.score1}</div>
+                  <div class="score-box">${m.status === 'Próximo' ? '-' : m.score1}</div>
                 </div>
                 <div class="vs-divider">
                   <span class="vs-text">VS</span>
                 </div>
                 <div class="team-row">
                   <span class="team-name">${m.team2}</span>
-                  <div class="score-box">${m.score2}</div>
+                  <div class="score-box">${m.status === 'Próximo' ? '-' : m.score2}</div>
                 </div>
               </div>
             </div>
@@ -778,13 +866,8 @@
                   ? `<span class="badge-status status-encurso"><span class="dot"></span> En curso</span>`
                   : `<span class="badge-status status-proximo">Próximo</span>`
                 }
-                ${isEditor ? `
-                  <button class="btn-edit-pencil" title="Editar marcador o estado" onclick="UI.openEditModal(${m.id})">
-                    <i class="fa-solid fa-pencil"></i>
-                  </button>
-                ` : ''}
               </div>
-              <a href="#" class="btn-details" onclick="alert('Detalles del encuentro ${m.team1} vs ${m.team2}'); return false;">Ver detalles</a>
+              <button class="btn-details" onclick="UI.openMatchModal(${m.id})">Ver detalles</button>
             </div>
           </div>
         `).join('');
@@ -797,83 +880,111 @@
         App.renderMatches();
       },
 
-      saveMatch: function(e) {
+      updateMatchStatus: function() {
+        const newStatus = document.getElementById('editor-status-select').value;
+        const match = state.matches.find(m => m.id === state.activeMatchId);
+        if (!match) return;
+
+        match.status = newStatus;
+        if (newStatus === 'En curso') match.date = 'Hoy, En curso';
+
+        App.renderMatches();
+        UI.refreshModalContent(match);
+      },
+
+      addGoalEvent: function(e) {
         e.preventDefault();
-        const sport = document.getElementById('modal-sport').value;
-        const team1 = document.getElementById('modal-team1').value;
-        const score1 = document.getElementById('modal-score1').value;
-        const team2 = document.getElementById('modal-team2').value;
-        const score2 = document.getElementById('modal-score2').value;
-        const status = document.getElementById('modal-status').value;
+        const match = state.matches.find(m => m.id === state.activeMatchId);
+        if (!match) return;
 
-        const iconMap = { 'Futsal': 'fa-futbol', 'Balonmano': 'fa-hand', 'Voleibol': 'fa-volleyball' };
+        const teamSelected = document.getElementById('goal-team-select').value;
+        const minute = document.getElementById('goal-minute-input').value.trim();
+        const player = document.getElementById('goal-player-input').value.trim();
 
-        if (state.editingMatchId) {
-          state.matches = state.matches.map(m => {
-            if (m.id === state.editingMatchId) {
-              return {
-                ...m,
-                sport,
-                icon: iconMap[sport] || 'fa-trophy',
-                team1,
-                score1: status === 'Próximo' ? '-' : score1,
-                team2,
-                score2: status === 'Próximo' ? '-' : score2,
-                status,
-                date: status === 'En curso' ? 'Hoy, En curso' : m.date
-              };
-            }
-            return m;
-          });
+        // Sumar gol al equipo correspondiente
+        if (teamSelected === match.team1) {
+          match.score1 = Number(match.score1) + 1;
         } else {
-          state.matches.unshift({
-            id: Date.now(),
-            sport,
-            icon: iconMap[sport] || 'fa-trophy',
-            date: status === 'En curso' ? 'Hoy, En curso' : 'Hoy',
-            team1,
-            score1: status === 'Próximo' ? '-' : score1,
-            team2,
-            score2: status === 'Próximo' ? '-' : score2,
-            status
-          });
+          match.score2 = Number(match.score2) + 1;
         }
 
-        UI.closeModal();
+        // Agregar evento
+        if (!match.events) match.events = [];
+        match.events.push({ team: teamSelected, player, minute });
+
+        // Limpiar inputs
+        document.getElementById('goal-player-input').value = '';
+        document.getElementById('goal-minute-input').value = '';
+
         App.renderMatches();
+        UI.refreshModalContent(match);
       }
     };
 
     const UI = {
-      openCreateModal: function() {
-        state.editingMatchId = null;
-        document.getElementById('modal-title').textContent = '➕ Registrar Nuevo Partido';
-        document.getElementById('modal-sport').value = 'Futsal';
-        document.getElementById('modal-team1').value = '';
-        document.getElementById('modal-score1').value = '0';
-        document.getElementById('modal-team2').value = '';
-        document.getElementById('modal-score2').value = '0';
-        document.getElementById('modal-status').value = 'En curso';
-        document.getElementById('editor-modal').classList.add('active');
-      },
-
-      openEditModal: function(id) {
+      openMatchModal: function(id) {
         const match = state.matches.find(m => m.id === id);
         if (!match) return;
 
-        state.editingMatchId = id;
-        document.getElementById('modal-title').textContent = '✏️ Editar Partido en Vivo';
-        document.getElementById('modal-sport').value = match.sport;
-        document.getElementById('modal-team1').value = match.team1;
-        document.getElementById('modal-score1').value = match.score1 === '-' ? '0' : match.score1;
-        document.getElementById('modal-team2').value = match.team2;
-        document.getElementById('modal-score2').value = match.score2 === '-' ? '0' : match.score2;
-        document.getElementById('modal-status').value = match.status;
-        document.getElementById('editor-modal').classList.add('active');
+        state.activeMatchId = id;
+        UI.refreshModalContent(match);
+
+        // Mostrar u ocultar panel de editor
+        const isEditor = state.user && state.user.role === 'EDITOR';
+        const editorPanel = document.getElementById('editor-controls-panel');
+        if (isEditor) {
+          editorPanel.style.display = 'block';
+          document.getElementById('editor-status-select').value = match.status;
+
+          // Cargar opciones del selector de equipos
+          const teamSelect = document.getElementById('goal-team-select');
+          teamSelect.innerHTML = `
+            <option value="${match.team1}">${match.team1}</option>
+            <option value="${match.team2}">${match.team2}</option>
+          `;
+        } else {
+          editorPanel.style.display = 'none';
+        }
+
+        document.getElementById('match-modal').classList.add('active');
+      },
+
+      refreshModalContent: function(match) {
+        document.getElementById('modal-sport-title').textContent = `${match.sport} — Detalles`;
+        document.getElementById('modal-date-info').textContent = `${match.date}`;
+        document.getElementById('modal-score-display').textContent = match.status === 'Próximo' ? '- vs -' : `${match.score1} - ${match.score2}`;
+        document.getElementById('modal-teams-display').textContent = `${match.team1} vs ${match.team2}`;
+
+        // Badge de estado
+        const badgeContainer = document.getElementById('modal-status-badge');
+        if (match.status === 'Finalizado') {
+          badgeContainer.innerHTML = `<span class="badge-status status-finalizado">Finalizado</span>`;
+        } else if (match.status === 'En curso') {
+          badgeContainer.innerHTML = `<span class="badge-status status-encurso"><span class="dot"></span> En curso</span>`;
+        } else {
+          badgeContainer.innerHTML = `<span class="badge-status status-proximo">Próximo</span>`;
+        }
+
+        // Cargar lista de goles
+        const listContainer = document.getElementById('events-list-container');
+        if (match.events && match.events.length > 0) {
+          listContainer.innerHTML = match.events.map(ev => `
+            <li class="event-item">
+              <span>⚽ <strong>${ev.player}</strong> (${ev.team})</span>
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${ev.minute}</span>
+            </li>
+          `).join('');
+        } else {
+          listContainer.innerHTML = `<li style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem 0;">Aún no se han registrado anotaciones en este partido.</li>`;
+        }
       },
 
       closeModal: function() {
-        document.getElementById('editor-modal').classList.remove('active');
+        document.getElementById('match-modal').classList.remove('active');
+      },
+
+      openCreateModal: function() {
+        alert('Para registrar un partido nuevo completa los datos requeridos.');
       }
     };
 
