@@ -12,16 +12,24 @@ const INITIAL_MATCHES = [
   { id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso', team1: '11° A', score1: '8', team2: '10° C', score2: '5', status: 'En curso' }
 ];
 
+// Valida que el curso sea de 1° a 11° (con letra de sección opcional)
+function cursoValido(texto) {
+  const m = texto.trim().match(/^(\d{1,2})\s*°?\s*([A-Za-z])?$/);
+  if (!m) return false;
+  const grado = parseInt(m[1], 10);
+  return grado >= 1 && grado <= 11;
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [matches, setMatches] = useState(INITIAL_MATCHES);
   const [currentFilter, setCurrentFilter] = useState('TODOS');
-  
+
   const [isLoginOpen, setIsLoginOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMatchId, setEditingMatchId] = useState(null);
   const [loginError, setLoginError] = useState('');
-  
+
   const [loginForm, setLoginForm] = useState({
     name: '',
     curso: '',
@@ -56,6 +64,11 @@ export default function App() {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setLoginError('');
+
+    if (!cursoValido(loginForm.curso)) {
+      setLoginError('El curso debe ser de 1° a 11° (Ej. 11° A).');
+      return;
+    }
 
     if (loginForm.role === 'EDITOR' && loginForm.password !== EDITOR_PASSWORD) {
       setLoginError('Contraseña incorrecta para Editor. Verifícala e intenta de nuevo.');
@@ -111,6 +124,12 @@ export default function App() {
   // Guardar (Crear o Editar)
   const handleSaveMatch = (e) => {
     e.preventDefault();
+
+    if (!cursoValido(matchForm.team1) || !cursoValido(matchForm.team2)) {
+      alert('Los equipos deben ser cursos de 1° a 11° (Ej. 11° A).');
+      return;
+    }
+
     const iconMap = { Futsal: 'fa-futbol', Balonmano: 'fa-hand', Voleibol: 'fa-volleyball' };
 
     if (editingMatchId) {
@@ -179,7 +198,7 @@ export default function App() {
               </div>
 
               <div className="form-group">
-                <label>Curso / Grado</label>
+                <label>Curso / Grado (1° a 11°)</label>
                 <input
                   type="text"
                   className="form-input"
