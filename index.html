@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Colsam-Sport - Juegos Intercursos Oficiales</title>
-  <!-- Google Fonts & FontAwesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -28,524 +27,77 @@
       --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
       --transition: all 0.2s ease;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
+    .header-logo-img { height: 48px; width: auto; border-radius: 6px; background: #ffffff; padding: 2px; object-fit: contain; }
+    .login-logo-img { max-width: 210px; height: auto; object-fit: contain; margin-bottom: 0.5rem; }
 
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #07172b 0%, var(--header-bg) 100%); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 1.5rem; }
+    .login-card { background: #ffffff; border-radius: var(--radius-card); width: 100%; max-width: 420px; padding: 2.5rem 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25); text-align: center; }
+    .brand-login { display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem; }
+    .brand-login-sub { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.75rem; }
+    .form-group { text-align: left; margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem; }
+    .form-input { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; transition: var(--transition); background: #f8fafc; }
+    .form-input:focus { outline: none; border-color: var(--header-bg); background: #ffffff; box-shadow: 0 0 0 3px rgba(13, 40, 71, 0.1); }
+    .btn-login { width: 100%; background: var(--header-bg); color: #fff; padding: 0.85rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 0.5rem; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-login:hover { background: #173b66; }
+    .login-error-msg { background: #fee2e2; color: #dc2626; padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; font-weight: 600; }
 
-    /* ESTILOS DE LOGO */
-    .header-logo-img {
-      height: 48px;
-      width: auto;
-      border-radius: 6px;
-      background: #ffffff;
-      padding: 2px;
-      object-fit: contain;
-    }
+    .top-header { background-color: var(--header-bg); color: #ffffff; padding: 1.1rem 3rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header-brand { display: flex; align-items: center; gap: 1rem; }
+    .brand-title { font-size: 1.6rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+    .brand-subtitle { font-size: 0.75rem; font-weight: 700; color: #94a3b8; letter-spacing: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .season-badge { background: var(--header-card-bg); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .user-pill { background: rgba(255, 255, 255, 0.1); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-logout { background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 1rem; transition: var(--transition); }
+    .btn-logout:hover { color: #ef4444; }
 
-    .login-logo-img {
-      max-width: 210px;
-      height: auto;
-      object-fit: contain;
-      margin-bottom: 0.5rem;
-    }
+    .main-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; width: 100%; flex: 1; }
+    .filter-pills { display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .pill-btn { background: #ffffff; border: 1.5px solid #d1d5db; color: #374151; padding: 0.55rem 1.4rem; border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: var(--transition); }
+    .pill-btn:hover { border-color: var(--header-bg); color: var(--header-bg); }
+    .pill-btn.active { background: var(--header-bg); color: #ffffff; border-color: var(--header-bg); }
 
-    /* LOGIN OVERLAY */
-    .login-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, #07172b 0%, var(--header-bg) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 1.5rem;
-    }
+    .matches-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .match-card { background: var(--card-bg); border-radius: var(--radius-card); border: 1px solid var(--border-color); padding: 1.25rem; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; transition: var(--transition); }
+    .match-card:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); transform: translateY(-2px); }
+    .card-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; font-weight: 600; }
+    .card-sport { display: flex; align-items: center; gap: 0.4rem; color: var(--header-bg); font-weight: 700; }
+    .teams-container { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .team-row { display: flex; justify-content: space-between; align-items: center; }
+    .team-name { font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+    .score-box { background: var(--score-bg); color: #0f172a; font-size: 1.1rem; font-weight: 800; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .vs-divider { text-align: center; position: relative; margin: -0.25rem 0; }
+    .vs-divider::before { content: ''; position: absolute; left: 0; top: 50%; right: 0; border-top: 1px solid var(--border-color); z-index: 1; }
+    .vs-text { position: relative; background: var(--card-bg); padding: 0 0.5rem; font-size: 0.75rem; font-weight: 700; color: #94a3b8; z-index: 2; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; }
+    .footer-status-wrapper { display: flex; align-items: center; gap: 0.5rem; }
+    .badge-status { padding: 0.35rem 0.85rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .status-finalizado { background: var(--badge-finalizado); color: var(--badge-finalizado-text); }
+    .status-proximo { background: #f1f5f9; color: #64748b; }
+    .status-encurso { background: var(--header-bg); color: #ffffff; display: flex; align-items: center; gap: 0.4rem; }
+    .status-encurso .dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+    .btn-details { background: none; border: none; color: var(--header-bg); font-size: 0.825rem; font-weight: 700; cursor: pointer; transition: var(--transition); text-decoration: none; }
+    .btn-details:hover { text-decoration: underline; }
 
-    .login-card {
-      background: #ffffff;
-      border-radius: var(--radius-card);
-      width: 100%;
-      max-width: 420px;
-      padding: 2.5rem 2rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
-      text-align: center;
-    }
+    .editor-banner { background: var(--header-bg); color: white; padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .btn-action { background: #22c55e; color: white; border: none; padding: 0.55rem 1.2rem; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); }
+    .btn-action:hover { background: #16a34a; }
 
-    .brand-login {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 0.25rem;
-    }
-
-    .brand-login-sub {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 1.75rem;
-    }
-
-    .form-group {
-      text-align: left;
-      margin-bottom: 1.2rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 0.4rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border: 1.5px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      transition: var(--transition);
-      background: #f8fafc;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--header-bg);
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(13, 40, 71, 0.1);
-    }
-
-    .btn-login {
-      width: 100%;
-      background: var(--header-bg);
-      color: #fff;
-      padding: 0.85rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn-login:hover {
-      background: #173b66;
-    }
-
-    .login-error-msg {
-      background: #fee2e2;
-      color: #dc2626;
-      padding: 0.6rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    /* HEADER */
-    .top-header {
-      background-color: var(--header-bg);
-      color: #ffffff;
-      padding: 1.1rem 3rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .brand-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-subtitle {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 1px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .season-badge {
-      background: var(--header-card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #ffffff;
-      padding: 0.5rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .user-pill {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .btn-logout {
-      background: none;
-      border: none;
-      color: #cbd5e1;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: var(--transition);
-    }
-
-    .btn-logout:hover {
-      color: #ef4444;
-    }
-
-    /* MAIN CONTAINER */
-    .main-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      width: 100%;
-      flex: 1;
-    }
-
-    .filter-pills {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 2.5rem;
-      flex-wrap: wrap;
-    }
-
-    .pill-btn {
-      background: #ffffff;
-      border: 1.5px solid #d1d5db;
-      color: #374151;
-      padding: 0.55rem 1.4rem;
-      border-radius: var(--radius-pill);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: var(--transition);
-    }
-
-    .pill-btn:hover {
-      border-color: var(--header-bg);
-      color: var(--header-bg);
-    }
-
-    .pill-btn.active {
-      background: var(--header-bg);
-      color: #ffffff;
-      border-color: var(--header-bg);
-    }
-
-    /* GRILLA Y TARJETAS */
-    .matches-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-
-    .match-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-card);
-      border: 1px solid var(--border-color);
-      padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: var(--transition);
-    }
-
-    .match-card:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      transform: translateY(-2px);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1.25rem;
-      font-weight: 600;
-    }
-
-    .card-sport {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: var(--header-bg);
-      font-weight: 700;
-    }
-
-    .teams-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .team-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .team-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .score-box {
-      background: var(--score-bg);
-      color: #0f172a;
-      font-size: 1.1rem;
-      font-weight: 800;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .vs-divider {
-      text-align: center;
-      position: relative;
-      margin: -0.25rem 0;
-    }
-
-    .vs-divider::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 50%; right: 0;
-      border-top: 1px solid var(--border-color);
-      z-index: 1;
-    }
-
-    .vs-text {
-      position: relative;
-      background: var(--card-bg);
-      padding: 0 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #94a3b8;
-      z-index: 2;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 0.75rem;
-    }
-
-    .footer-status-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .badge-status {
-      padding: 0.35rem 0.85rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .status-finalizado {
-      background: var(--badge-finalizado);
-      color: var(--badge-finalizado-text);
-    }
-
-    .status-proximo {
-      background: #f1f5f9;
-      color: #64748b;
-    }
-
-    .status-encurso {
-      background: var(--header-bg);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .status-encurso .dot {
-      width: 6px;
-      height: 6px;
-      background: #22c55e;
-      border-radius: 50%;
-    }
-
-    .btn-details {
-      background: none;
-      border: none;
-      color: var(--header-bg);
-      font-size: 0.825rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-    }
-
-    .btn-details:hover {
-      text-decoration: underline;
-    }
-
-    .editor-banner {
-      background: var(--header-bg);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .btn-action {
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 0.55rem 1.2rem;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: var(--transition);
-    }
-
-    .btn-action:hover {
-      background: #16a34a;
-    }
-
-    /* MODALES */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: var(--transition);
-      padding: 1rem;
-    }
-
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: var(--transition); padding: 1rem; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-card { background: #fff; width: 100%; max-width: 520px; border-radius: var(--radius-card); padding: 1.75rem; box-shadow: 0 15px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .modal-header-score { background: var(--header-bg); color: #fff; padding: 1.25rem; border-radius: 10px; text-align: center; margin-bottom: 1.25rem; }
+    .modal-score-big { font-size: 2.2rem; font-weight: 800; margin: 0.4rem 0; color: #38bdf8; }
+    .editor-box { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 1rem; margin-top: 1.25rem; }
+    .editor-box-title { font-size: 0.9rem; font-weight: 700; color: var(--header-bg); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .events-list { list-style: none; margin-top: 0.5rem; }
+    .event-item { padding: 0.5rem 0.75rem; background: #f1f5f9; border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
 
-    .modal-card {
-      background: #fff;
-      width: 100%;
-      max-width: 520px;
-      border-radius: var(--radius-card);
-      padding: 1.75rem;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header-score {
-      background: var(--header-bg);
-      color: #fff;
-      padding: 1.25rem;
-      border-radius: 10px;
-      text-align: center;
-      margin-bottom: 1.25rem;
-    }
-
-    .modal-score-big {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin: 0.4rem 0;
-      color: #38bdf8;
-    }
-
-    .editor-box {
-      background: #f8fafc;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-top: 1.25rem;
-    }
-
-    .editor-box-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--header-bg);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .events-list {
-      list-style: none;
-      margin-top: 0.5rem;
-    }
-
-    .event-item {
-      padding: 0.5rem 0.75rem;
-      background: #f1f5f9;
-      border-radius: 6px;
-      margin-bottom: 0.4rem;
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    @media (max-width: 900px) {
-      .matches-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 900px) { .matches-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px) {
       .matches-grid { grid-template-columns: 1fr; }
       .top-header { flex-direction: column; gap: 1rem; text-align: center; }
@@ -569,7 +121,7 @@
         </div>
 
         <div class="form-group">
-          <label for="login-curso">Curso / Grado</label>
+          <label for="login-curso">Curso / Grado (1° a 11°)</label>
           <input type="text" id="login-curso" class="form-input" placeholder="Ej. 11° A" required>
         </div>
 
@@ -627,7 +179,6 @@
       <button class="btn-action" onclick="UI.openCreateModal()"><i class="fa-solid fa-plus"></i> + Crear Partido</button>
     </div>
 
-    <!-- Filtros de Deporte tipo Píldora -->
     <div class="filter-pills">
       <button class="pill-btn active" onclick="App.filterMatches('TODOS', this)">
         <i class="fa-solid fa-border-all"></i> Todos
@@ -643,7 +194,6 @@
       </button>
     </div>
 
-    <!-- Grilla de Tarjetas -->
     <div class="matches-grid" id="matches-grid"></div>
   </main>
 
@@ -662,7 +212,6 @@
         <div style="margin-top: 0.5rem;" id="modal-status-badge"></div>
       </div>
 
-      <!-- HISTORIAL DE ANOTACIONES -->
       <div>
         <h4 style="font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.5rem;">
           <i class="fa-solid fa-list-check"></i> Historial de Anotaciones / Goles
@@ -670,7 +219,6 @@
         <ul id="events-list-container" class="events-list"></ul>
       </div>
 
-      <!-- PANEL DE CONTROL DEL EDITOR -->
       <div id="editor-controls-panel" class="editor-box" style="display: none;">
         <div class="editor-box-title">
           <i class="fa-solid fa-pen-to-square"></i> Panel de Control (Modo Editor)
@@ -774,13 +322,21 @@
   <script>
     const EDITOR_PASSWORD = 'colsam123';
 
+    // Valida que el curso sea de 1° a 11° (con letra de sección opcional)
+    function cursoValido(texto) {
+      const m = texto.trim().match(/^(\d{1,2})\s*°?\s*([A-Za-z])?$/);
+      if (!m) return false;
+      const grado = parseInt(m[1], 10);
+      return grado >= 1 && grado <= 11;
+    }
+
     let state = {
       user: null,
       currentFilter: 'TODOS',
       activeMatchId: null,
       matches: [
-        { 
-          id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM', 
+        {
+          id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM',
           team1: '11° A', score1: 4, team2: '11° B', score2: 2, status: 'Finalizado',
           events: [
             { team: '11° A', player: 'Juan Pérez', minute: "12'" },
@@ -791,37 +347,37 @@
             { team: '11° A', player: 'Felipe Silva', minute: "48'" }
           ]
         },
-        { 
-          id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM', 
+        {
+          id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM',
           team1: '10° C', score1: 1, team2: '10° A', score2: 1, status: 'Finalizado',
           events: [
             { team: '10° C', player: 'Daniel Torres', minute: "15'" },
             { team: '10° A', player: 'Santi Marín', minute: "33'" }
           ]
         },
-        { 
-          id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM', 
+        {
+          id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM',
           team1: '9° B', score1: 15, team2: '9° C', score2: 12, status: 'Finalizado',
           events: [
             { team: '9° B', player: 'Lucas Castro (5 puntos)', minute: 'Global' },
             { team: '9° C', player: 'Nicolás Vega (4 puntos)', minute: 'Global' }
           ]
         },
-        { 
-          id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM', 
+        {
+          id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM',
           team1: '11° C', score1: 2, team2: '10° B', score2: 0, status: 'Finalizado',
           events: [
             { team: '11° C', player: 'Anotación Set 1', minute: 'Set 1' },
             { team: '11° C', player: 'Anotación Set 2', minute: 'Set 2' }
           ]
         },
-        { 
-          id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM', 
+        {
+          id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM',
           team1: '8° A', score1: 0, team2: '8° B', score2: 0, status: 'Próximo',
           events: []
         },
-        { 
-          id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso', 
+        {
+          id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso',
           team1: '11° A', score1: 8, team2: '10° C', score2: 5, status: 'En curso',
           events: [
             { team: '11° A', player: 'David Herrera', minute: "5'" },
@@ -855,6 +411,12 @@
         const errorDiv = document.getElementById('login-error');
 
         errorDiv.style.display = 'none';
+
+        if (!cursoValido(curso)) {
+          errorDiv.textContent = 'El curso debe ser de 1° a 11° (Ej. 11° A).';
+          errorDiv.style.display = 'block';
+          return;
+        }
 
         if (role === 'EDITOR' && password !== EDITOR_PASSWORD) {
           errorDiv.textContent = 'Contraseña incorrecta para Editor. Verifícala e intenta de nuevo.';
@@ -896,8 +458,8 @@
     const App = {
       renderMatches: function() {
         const grid = document.getElementById('matches-grid');
-        const filtered = state.currentFilter === 'TODOS' 
-          ? state.matches 
+        const filtered = state.currentFilter === 'TODOS'
+          ? state.matches
           : state.matches.filter(m => m.sport === state.currentFilter);
 
         grid.innerHTML = filtered.map(m => `
@@ -928,8 +490,8 @@
 
             <div class="card-footer">
               <div class="footer-status-wrapper">
-                ${m.status === 'Finalizado' 
-                  ? `<span class="badge-status status-finalizado">Finalizado</span>` 
+                ${m.status === 'Finalizado'
+                  ? `<span class="badge-status status-finalizado">Finalizado</span>`
                   : m.status === 'En curso'
                   ? `<span class="badge-status status-encurso"><span class="dot"></span> En curso</span>`
                   : `<span class="badge-status status-proximo">Próximo</span>`
@@ -957,6 +519,11 @@
         const team2 = document.getElementById('create-team2').value.trim();
         const score2 = parseInt(document.getElementById('create-score2').value) || 0;
         const status = document.getElementById('create-status').value;
+
+        if (!cursoValido(team1) || !cursoValido(team2)) {
+          alert('Los equipos deben ser cursos de 1° a 11° (Ej. 11° A).');
+          return;
+        }
 
         const iconMap = { 'Futsal': 'fa-futbol', 'Balonmano': 'fa-hand', 'Voleibol': 'fa-volleyball' };
 
