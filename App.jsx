@@ -22,7 +22,15 @@ function cursoValido(texto) {
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [matches, setMatches] = useState(INITIAL_MATCHES);
+  const [matches, setMatches] = useState(() => {
+    try {
+      const data = localStorage.getItem('colsam_matches');
+      const parsed = data ? JSON.parse(data) : [];
+      return parsed.length > 0 ? parsed : INITIAL_MATCHES;
+    } catch (e) {
+      return INITIAL_MATCHES;
+    }
+  });
   const [currentFilter, setCurrentFilter] = useState('TODOS');
 
   const [isLoginOpen, setIsLoginOpen] = useState(true);
@@ -45,6 +53,11 @@ export default function App() {
     score2: '0',
     status: 'Finalizado'
   });
+
+  // Guardar partidos en el navegador cada vez que cambian
+  useEffect(() => {
+    try { localStorage.setItem('colsam_matches', JSON.stringify(matches)); } catch (e) {}
+  }, [matches]);
 
   // Cargar sesión guardada si existe
   useEffect(() => {
@@ -316,6 +329,11 @@ export default function App() {
 
         {/* Grilla de Partidos */}
         <div className="matches-grid">
+          {filteredMatches.length === 0 && (
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#64748b', padding: '2rem' }}>
+              Aún no hay partidos registrados.
+            </p>
+          )}
           {filteredMatches.map((m) => (
             <div className="match-card" key={m.id}>
               <div>
