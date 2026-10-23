@@ -334,18 +334,21 @@
       appId: "PEGA_AQUI"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Solo se activa cuando reemplazas los "PEGA_AQUI" por tu configuración real
+    if (firebaseConfig.apiKey !== "PEGA_AQUI") {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
 
-    window.DB = {
-      guardar: (match) => setDoc(doc(db, 'partidos', String(match.id)), match)
-        .catch(err => alert('No se pudo guardar el partido: ' + err.message))
-    };
+      window.DB = {
+        guardar: (match) => setDoc(doc(db, 'partidos', String(match.id)), match)
+          .catch(err => alert('No se pudo guardar el partido: ' + err.message))
+      };
 
-    onSnapshot(collection(db, 'partidos'), (snap) => {
-      const lista = snap.docs.map(d => d.data()).sort((a, b) => b.id - a.id);
-      window.onPartidosActualizados(lista);
-    });
+      onSnapshot(collection(db, 'partidos'), (snap) => {
+        const lista = snap.docs.map(d => d.data()).sort((a, b) => b.id - a.id);
+        window.onPartidosActualizados(lista);
+      });
+    }
   </script>
 
   <script>
@@ -361,7 +364,13 @@
 
     // Guarda un partido en la base de datos (Firebase). Se define en el bloque <script type="module"> de abajo.
     function guardarPartido(match) {
-      if (window.DB) window.DB.guardar(match);
+      if (window.DB) {
+        window.DB.guardar(match);
+      } else {
+        // Sin base de datos: se guarda solo en memoria (se pierde al recargar)
+        if (!state.matches.some(m => m.id === match.id)) state.matches.unshift(match);
+        App.renderMatches();
+      }
     }
 
     // Firebase llama a esta función cada vez que cambian los partidos en la nube (en vivo)
@@ -378,7 +387,58 @@
       user: null,
       currentFilter: 'TODOS',
       activeMatchId: null,
-      matches: []
+      matches: [
+        {
+          id: 1, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 08:00 AM',
+          team1: '11° A', score1: 4, team2: '11° B', score2: 2, status: 'Finalizado',
+          events: [
+            { team: '11° A', player: 'Juan Pérez', minute: "12'" },
+            { team: '11° A', player: 'Carlos Gómez', minute: "24'" },
+            { team: '11° B', player: 'Andrés López', minute: "30'" },
+            { team: '11° A', player: 'Juan Pérez', minute: "38'" },
+            { team: '11° B', player: 'Mateo Ruíz', minute: "41'" },
+            { team: '11° A', player: 'Felipe Silva', minute: "48'" }
+          ]
+        },
+        {
+          id: 2, sport: 'Futsal', icon: 'fa-futbol', date: '25 May, 09:30 AM',
+          team1: '10° C', score1: 1, team2: '10° A', score2: 1, status: 'Finalizado',
+          events: [
+            { team: '10° C', player: 'Daniel Torres', minute: "15'" },
+            { team: '10° A', player: 'Santi Marín', minute: "33'" }
+          ]
+        },
+        {
+          id: 3, sport: 'Balonmano', icon: 'fa-hand', date: '26 May, 08:00 AM',
+          team1: '9° B', score1: 15, team2: '9° C', score2: 12, status: 'Finalizado',
+          events: [
+            { team: '9° B', player: 'Lucas Castro (5 puntos)', minute: 'Global' },
+            { team: '9° C', player: 'Nicolás Vega (4 puntos)', minute: 'Global' }
+          ]
+        },
+        {
+          id: 4, sport: 'Voleibol', icon: 'fa-volleyball', date: '27 May, 10:00 AM',
+          team1: '11° C', score1: 2, team2: '10° B', score2: 0, status: 'Finalizado',
+          events: [
+            { team: '11° C', player: 'Anotación Set 1', minute: 'Set 1' },
+            { team: '11° C', player: 'Anotación Set 2', minute: 'Set 2' }
+          ]
+        },
+        {
+          id: 5, sport: 'Futsal', icon: 'fa-futbol', date: 'Hoy, 14:00 PM',
+          team1: '8° A', score1: 0, team2: '8° B', score2: 0, status: 'Próximo',
+          events: []
+        },
+        {
+          id: 6, sport: 'Balonmano', icon: 'fa-hand', date: 'Hoy, En curso',
+          team1: '11° A', score1: 8, team2: '10° C', score2: 5, status: 'En curso',
+          events: [
+            { team: '11° A', player: 'David Herrera', minute: "5'" },
+            { team: '10° C', player: 'Esteban Cruz', minute: "10'" },
+            { team: '11° A', player: 'David Herrera', minute: "18'" }
+          ]
+        }
+      ]
     };
 
     const Auth = {
