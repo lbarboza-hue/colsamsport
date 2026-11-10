@@ -150,7 +150,7 @@
   <!-- CABEZAL SUPERIOR -->
   <header class="top-header">
     <div class="header-brand">
-      <img src="colsam-sport.jpg" alt="Colsam Sport Logo" class="header-logo-img">
+      <img src="colsam-sport.png" alt="Colsam Sport Logo" class="header-logo-img">
       <div>
         <div class="brand-title">Colsam-Sport</div>
         <div class="brand-subtitle">JUEGOS INTERCURSOS OFICIALES</div>
@@ -362,7 +362,7 @@
       return grado >= 1 && grado <= 11;
     }
 
-    // Guarda un partido en la base de datos (Firebase). Se define en el bloque <script type="module"> de abajo.
+    // Guarda un partido en la base de datos (Firebase). Se define en el bloque <script type="module"> de arriba.
     function guardarPartido(match) {
       if (window.DB) {
         window.DB.guardar(match);
@@ -633,73 +633,68 @@
         }
 
         if (!match.events) match.events = [];
-        match.events.push({ team: teamSelected, player, minute });
+        match.events.push({ team: teamSelected, player: player, minute: minute });
 
-        document.getElementById('goal-player-input').value = '';
-        document.getElementById('goal-minute-input').value = '';
         guardarPartido(match);
-
         App.renderMatches();
         UI.refreshModalContent(match);
+        document.getElementById('goal-minute-input').value = '';
+        document.getElementById('goal-player-input').value = '';
       }
     };
 
     const UI = {
       openMatchModal: function(id) {
+        state.activeMatchId = id;
         const match = state.matches.find(m => m.id === id);
         if (!match) return;
 
-        state.activeMatchId = id;
         UI.refreshModalContent(match);
 
         const isEditor = state.user && state.user.role === 'EDITOR';
-        const editorPanel = document.getElementById('editor-controls-panel');
-        if (isEditor) {
-          editorPanel.style.display = 'block';
-          document.getElementById('editor-status-select').value = match.status;
+        document.getElementById('editor-controls-panel').style.display = isEditor ? 'block' : 'none';
 
-          const teamSelect = document.getElementById('goal-team-select');
-          teamSelect.innerHTML = `
+        if (isEditor) {
+          const select = document.getElementById('goal-team-select');
+          select.innerHTML = `
             <option value="${match.team1}">${match.team1}</option>
             <option value="${match.team2}">${match.team2}</option>
           `;
-        } else {
-          editorPanel.style.display = 'none';
+          document.getElementById('editor-status-select').value = match.status;
         }
 
         document.getElementById('match-modal').classList.add('active');
       },
 
       refreshModalContent: function(match) {
-        document.getElementById('modal-sport-title').textContent = `${match.sport} — Detalles`;
-        document.getElementById('modal-date-info').textContent = `${match.date}`;
-        document.getElementById('modal-score-display').textContent = match.status === 'Próximo' && match.score1 === 0 && match.score2 === 0 ? '- vs -' : `${match.score1} - ${match.score2}`;
+        document.getElementById('modal-sport-title').textContent = `${match.sport} - Detalle del Partido`;
+        document.getElementById('modal-date-info').textContent = match.date;
+        document.getElementById('modal-score-display').textContent = `${match.score1} - ${match.score2}`;
         document.getElementById('modal-teams-display').textContent = `${match.team1} vs ${match.team2}`;
 
-        const badgeContainer = document.getElementById('modal-status-badge');
+        const statusBadge = document.getElementById('modal-status-badge');
         if (match.status === 'Finalizado') {
-          badgeContainer.innerHTML = `<span class="badge-status status-finalizado">Finalizado</span>`;
+          statusBadge.innerHTML = `<span class="badge-status status-finalizado">Finalizado</span>`;
         } else if (match.status === 'En curso') {
-          badgeContainer.innerHTML = `<span class="badge-status status-encurso"><span class="dot"></span> En curso</span>`;
+          statusBadge.innerHTML = `<span class="badge-status status-encurso"><span class="dot"></span> En curso</span>`;
         } else {
-          badgeContainer.innerHTML = `<span class="badge-status status-proximo">Próximo</span>`;
+          statusBadge.innerHTML = `<span class="badge-status status-proximo">Próximo</span>`;
         }
 
-        const listContainer = document.getElementById('events-list-container');
-        if (match.events && match.events.length > 0) {
-          listContainer.innerHTML = match.events.map(ev => `
+        const eventsContainer = document.getElementById('events-list-container');
+        if (!match.events || match.events.length === 0) {
+          eventsContainer.innerHTML = '<li style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem;">No hay anotaciones registradas aún.</li>';
+        } else {
+          eventsContainer.innerHTML = match.events.map(ev => `
             <li class="event-item">
-              <span>⚽ <strong>${ev.player}</strong> (${ev.team})</span>
-              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">${ev.minute}</span>
+              <span><strong>${ev.team}</strong>: ${ev.player}</span>
+              <span style="font-weight: 600; color: var(--text-muted);">${ev.minute}</span>
             </li>
           `).join('');
-        } else {
-          listContainer.innerHTML = `<li style="color:var(--text-muted); font-size:0.85rem; padding:0.5rem 0;">Aún no se han registrado anotaciones en este partido.</li>`;
         }
       },
 
       openCreateModal: function() {
-        document.getElementById('create-match-form').reset();
         document.getElementById('create-modal').classList.add('active');
       },
 
@@ -709,13 +704,13 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      const savedSession = localStorage.getItem('colsam_user_session');
-      if (savedSession) {
+      const savedUser = localStorage.getItem('colsam_user_session');
+      if (savedUser) {
         try {
-          state.user = JSON.parse(savedSession);
+          state.user = JSON.parse(savedUser);
           Auth.initApp();
-        } catch (e) {
-          Auth.logout();
+        } catch(e) {
+          App.renderMatches();
         }
       } else {
         App.renderMatches();
