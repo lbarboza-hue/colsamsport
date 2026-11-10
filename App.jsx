@@ -193,7 +193,7 @@ export default function App() {
         <div className="login-overlay">
           <div className="login-card">
             <div className="brand-login">
-              <img src="colsam-sport.jpg" alt="Colsam Sport Logo" className="login-logo-img" />
+              <img src="colsam-sport.png" alt="Colsam Sport Logo" className="login-logo-img" />
             </div>
             <div className="brand-login-sub">Juegos Intercursos Oficiales</div>
 
